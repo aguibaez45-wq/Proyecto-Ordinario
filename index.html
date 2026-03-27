@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora TICs - Dark Edition</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: radial-gradient(circle at top, #1e272e 0%, #000000 100%); color: white; min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
+        .header-tic { background: rgba(0,0,0,0.5); border-bottom: 4px solid #e67e22; padding: 20px; }
+        .calc-body { background: #2d3436; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .display-screen { background: #1e272e; color: #2ed573; border: 2px solid #e67e22; font-family: monospace; font-size: 1.5rem; text-align: right; }
+        .btn-calc { height: 50px; border: none; border-radius: 10px; font-weight: bold; transition: 0.2s; }
+        .btn-math { background: #485460; color: white; }
+        .btn-op { background: #e67e22; color: white; }
+        .btn-action { background: #2ed573; color: #1e272e; }
+        .glass-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 20px; }
+        .scroll-table { max-height: 300px; overflow-y: auto; }
+        .table-dark-custom { color: #dcdde1; font-size: 0.9rem; }
+        .historial-item { background: rgba(230, 126, 34, 0.1); border-left: 4px solid #e67e22; padding: 10px; margin-bottom: 5px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="header-tic mb-4">
+    <div class="container d-flex justify-content-between">
+        <div><h3 class="m-0 fw-bold">CALCULADORA UNIVERSAL</h3><small>{{ autor.materia }}</small></div>
+        <div class="text-end"><strong>{{ autor.nombres }}</strong><br><small>Ingeniería en TICs</small></div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="calc-body">
+                <form method="POST">
+                    <input type="text" id="screen" name="funcion" class="form-control display-screen mb-3 p-3" readonly value="{{ r.original if r else '' }}">
+                    <div class="row g-2">
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('sin(')">sin</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('cos(')">cos</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('sqrt(')">√</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-op w-100" onclick="clearScreen()">C</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('7')">7</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('8')">8</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('9')">9</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-op w-100" onclick="press('/')">/</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('4')">4</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('5')">5</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('6')">6</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-op w-100" onclick="press('*')">*</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('1')">1</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('2')">2</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('3')">3</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-op w-100" onclick="press('-')">-</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('0')">0</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('x')">x</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-math w-100" onclick="press('^')">^</button></div>
+                        <div class="col-3"><button type="button" class="btn btn-calc btn-op w-100" onclick="press('+')">+</button></div>
+                        <div class="col-6"><button type="button" class="btn btn-calc btn-math w-100" onclick="press(')')">)</button></div>
+                        <div class="col-6"><button type="submit" class="btn btn-calc btn-action w-100">CALCULAR</button></div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="mt-4 glass-card">
+                <h6 class="text-warning fw-bold">Historial Reciente</h6>
+                {% for item in historial %}
+                <div class="historial-item small">f(x) = {{ item.func }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if r %}
+        <div class="col-lg-8">
+            <div class="glass-card mb-4 text-center">
+                <img src="data:image/png;base64,{{ r.img }}" class="img-fluid rounded mb-3">
+                <div class="row">
+                    <div class="col-6 border-end border-secondary">Máximo: <span class="text-success fw-bold">{{ r.max }}</span></div>
+                    <div class="col-6">Mínimo: <span class="text-danger fw-bold">{{ r.min }}</span></div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h6 class="text-success fw-bold">Tabulación de Datos</h6>
+                <div class="scroll-table mt-3">
+                    <table class="table table-dark-custom table-hover">
+                        <thead><tr><th>Valor en X</th><th>Resultado f(x)</th></tr></thead>
+                        <tbody>
+                            {% for p in r.tabla %}
+                            <tr><td>{{ p.x }}</td><td>{{ p.y }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const screen = document.getElementById('screen');
+    function press(v) { if(screen.value==='0') screen.value=''; screen.value+=v; }
+    function clearScreen() { screen.value='0'; }
+</script>
+</body>
+</html>
