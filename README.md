@@ -1,3 +1,6 @@
+Desarrollado por:
+Ana Martínez, Rubi Aguilar y Ángel Hernández
+
 # Calculadora Universal en Python
 
 Este proyecto permite resolver y graficar funciones matemáticas utilizando Python, Flask, NumPy y Matplotlib.
